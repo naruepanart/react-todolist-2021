@@ -1,0 +1,26 @@
+{
+  "posts": [
+    {
+      "title": "json-server11",
+      "tag": [
+        "typicode"
+      ],
+      "id": 1
+    },
+    {
+      "title": "qqq777",
+      "tag": [
+        "zzzzzzzzzzz",
+        "zzzzzzzzz1"
+      ],
+      "id": 2
+    },
+    {
+      "title": "Earum eius dolor aut",
+      "tag": [
+        "Nihil elit ex quaer"
+      ],
+      "id": 3
+    }
+  ]
+}
