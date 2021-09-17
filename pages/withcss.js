@@ -12,29 +12,36 @@ const WithCSS = () => {
   const [title, setTitle] = React.useState("");
   const [images, setImages] = React.useState([]);
   const [editIndex, setEditIndex] = React.useState(null);
-  const [onEditData, setOnEditData] = React.useState(false);
+
+  const [editing, setEditing] = React.useState(false);
+  const [isLoading, setLoading] = React.useState(false);
 
   const FetchData = async () => {
     const { data } = await axios.get("http://localhost:3001/posts");
     setData(data);
   };
-
   React.useEffect(() => {
     FetchData();
   }, []);
 
   const UpLoadOnChangeImages = async (e) => {
-    let ImagesUpload;
-    ImagesUpload = e.target.files;
+    // images start uploading
+    setLoading(true);
+
+    let imagesArrayUpload;
+    imagesArrayUpload = e.target.files;
     let imagesArrayTotal = [];
-    for (let index = 0; index < ImagesUpload.length; index++) {
-      const file = ImagesUpload[index];
+    for (let index = 0; index < imagesArrayUpload.length; index++) {
+      const file = imagesArrayUpload[index];
       const { data } = await UploadImageSubmit(file);
       imagesArrayTotal.push(data.data.url);
     }
 
     console.log("imagesArrayTotal", imagesArrayTotal);
     setImages(imagesArrayTotal);
+
+    // images uploaded
+    setLoading(false);
   };
 
   const UploadImageSubmit = async (files) => {
@@ -63,7 +70,7 @@ const WithCSS = () => {
 
     await axios.post(`http://localhost:3001/posts`, user);
     setTitle("");
-    /* setImages([]); */
+    setImages([]);
     FetchData();
   };
 
@@ -73,18 +80,14 @@ const WithCSS = () => {
       images: images,
     };
 
-    await axios.put(`http://localhost:3001/posts/${editIndex}`, user);
-    setOnEditData(false);
+    await axios.patch(`http://localhost:3001/posts/${editIndex}`, user);
+    setEditing(false);
     setTitle("");
     setImages([]);
     FetchData();
   };
 
   const DeleteHandleData = async (id) => {
-    const newTodos = [...data];
-    newTodos.splice(id, 1);
-    setData(newTodos);
-
     await axios.delete(`http://localhost:3001/posts/${id}`);
     FetchData();
   };
@@ -92,7 +95,7 @@ const WithCSS = () => {
   return (
     <div style={{ maxWidth: "720px", margin: "3rem auto" }}>
       <div className="mb-3">
-        {onEditData && (
+        {editing && (
           <div>
             <h2>แก้ไข</h2>
             <Form.Group className="mb-3">
@@ -104,12 +107,12 @@ const WithCSS = () => {
               <Form.Control type="file" multiple onChange={UpLoadOnChangeImages}></Form.Control>
             </Form.Group>
             <Button type="submit" variant="primary" onClick={(e) => EditHandleSubmit(e)}>
-              Edit
+              แก้ไข
             </Button>
           </div>
         )}
 
-        {!onEditData && (
+        {!editing && (
           <div>
             <h2>โพส</h2>
             <Form.Group className="mb-3">
@@ -120,8 +123,8 @@ const WithCSS = () => {
               <Form.Label>รูปภาพ</Form.Label>
               <Form.Control type="file" multiple onChange={UpLoadOnChangeImages}></Form.Control>
             </Form.Group>
-            <Button type="submit" variant="primary" onClick={() => PostHandleSubmit()}>
-              Post
+            <Button type="submit" variant="primary" onClick={() => PostHandleSubmit()} disabled={isLoading}>
+              {!isLoading ? "โพส" : "กำลังโหลด..."}
             </Button>
           </div>
         )}
@@ -143,7 +146,7 @@ const WithCSS = () => {
                         setTitle(x.title);
                         setImages(x.images);
                         setEditIndex(x.id);
-                        setOnEditData(true);
+                        setEditing(true);
                       }}
                     >
                       Edit
